@@ -1,4 +1,5 @@
 import pygame
+import os
 import random as rand
 
 class Colors():
@@ -20,7 +21,9 @@ pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT + MENU))
 pygame.display.set_caption("Cars")
-font = pygame.font.SysFont("Arial", 32)
+game_dir = os.path.dirname(os.path.abspath(__file__))
+font_nataliza = os.path.join(game_dir, 'nasaliza.ttf')
+font = pygame.font.Font(font_nataliza, 32)
 clock = pygame.time.Clock()
 
 def refresh():
