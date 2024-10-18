@@ -13,7 +13,9 @@ WIDTH = 480
 HEIGHT = 480
 MENU = 75
 FPS = 60
+num_enemy = 12
 running = True
+score = 0
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT + MENU))
@@ -21,30 +23,90 @@ pygame.display.set_caption("Cars")
 font = pygame.font.SysFont("Arial", 32)
 clock = pygame.time.Clock()
 
+def refresh():
+    screen.fill(Colors.black)
+    pygame.draw.rect(screen, Colors.blue, pygame.Rect(Player.x, Player.y, Player.length, Player.length))
+    for obstacle in obstacles:
+        pygame.draw.rect(screen, Colors.red, pygame.Rect(obstacle.x, obstacle.y, obstacle.length, obstacle.length))
+    pygame.draw.rect(screen, Colors.black, pygame.Rect(0, HEIGHT, WIDTH, MENU))
+    pygame.draw.rect(screen, Colors.blue, pygame.Rect(0, HEIGHT, WIDTH, 5))
+    text_score = font.render(str(score), True, Colors.blue)
+    text_rect_score = text_score.get_rect(center = (WIDTH // 2, HEIGHT + 30))
+    screen.blit(text_score, text_rect_score)
+    pygame.display.flip()
+    clock.tick(FPS)
+
 class Player():
     x = 230
     y = 230
     speed = 3
     length = 20
-    
+
+    def refresh():
+        pressed = pygame.key.get_pressed()
+        if (pressed[pygame.K_UP] or pressed[pygame.K_w]):
+            if Player.y - Player.speed > 5: 
+                Player.y -= Player.speed
+            else:
+                Player.y = 5
+        if (pressed[pygame.K_DOWN] or pressed[pygame.K_s]):
+            if Player.y + Player.speed < HEIGHT - Player.length - 5: 
+                Player.y += Player.speed
+            else:
+                Player.y = HEIGHT - Player.length - 5
+        if (pressed[pygame.K_LEFT] or pressed[pygame.K_a]):
+            if Player.x - Player.speed > 5: 
+                Player.x -= Player.speed
+            else:
+                Player.x = 5
+        if (pressed[pygame.K_RIGHT] or pressed[pygame.K_d]):
+            if Player.x + Player.speed < WIDTH - Player.length - 5: 
+                Player.x += Player.speed
+            else:
+                Player.x = WIDTH - Player.length - 5
+
 class Obstacles():
-    length = rand.randint(5,45)
-    speed = 0
-    while speed == 0:
-        speed = rand.randint(-6, 6)
-    direction = rand.randint(0,1)
-    if direction:
-        y = rand.randint(0,HEIGHT-length)
-        if speed > 0:
-            x = -length
+
+    def __init__(self):
+        self.spawn_obstacle()
+
+    def spawn_obstacle(self):
+        self.length = rand.randint(5, 45)
+        self.speed = 0
+        while self.speed == 0:
+            self.speed = rand.randint(-6, 6)
+        self.direction = rand.randint(0, 1)
+        if self.direction:
+            self.y = rand.randint(0, HEIGHT - self.length)
+            if self.speed > 0:
+                self.x = -self.length
+            else:
+                self.x = WIDTH
         else:
-            x = WIDTH
-    else:
-        x = rand.randint(0,WIDTH-length)
-        if speed > 0:
-            y = -length
+            self.x = rand.randint(0, WIDTH - self.length)
+            if self.speed > 0:
+                self.y = -self.length
+            else:
+                self.y = HEIGHT
+
+    def move(self):
+        global score
+        if self.direction:
+            self.x += self.speed
+            if self.x > WIDTH or self.x < -self.length:
+                score += self.length * 10
+                self.spawn_obstacle()
         else:
-            y = HEIGHT
+            self.y += self.speed
+            if self.y > HEIGHT or self.y < -self.length:
+                score += self.length * 10
+                self.spawn_obstacle()
+
+
+obstacles = []
+for i in range(num_enemy):
+    obstacle = Obstacles()
+    obstacles.append(obstacle)
 
 while running:
     #quit
@@ -53,47 +115,13 @@ while running:
             running = False
 
     #obstacles moving
-    if Obstacles.direction:
-        if Obstacles.x + Obstacles.speed > -Obstacles.length and Obstacles.x + Obstacles.speed < WIDTH:
-            Obstacles.x += Obstacles.speed
-        else:
-            Obstacles.x = WIDTH//2
-    else:
-        if Obstacles.y + Obstacles.speed > -Obstacles.length and Obstacles.y + Obstacles.speed < HEIGHT:
-            Obstacles.y += Obstacles.speed
-        else:
-            Obstacles.y = HEIGHT//2
+    for obstacle in obstacles:
+        obstacle.move()
     
     #player moving
-    pressed = pygame.key.get_pressed()
-    if (pressed[pygame.K_UP] or pressed[pygame.K_w]):
-        if Player.y - Player.speed > 5: 
-            Player.y -= Player.speed
-        else:
-            Player.y = 5
-    if (pressed[pygame.K_DOWN] or pressed[pygame.K_s]):
-        if Player.y + Player.speed < HEIGHT - Player.length - 5: 
-            Player.y += Player.speed
-        else:
-            Player.y = HEIGHT - Player.length - 5
-    if (pressed[pygame.K_LEFT] or pressed[pygame.K_a]):
-        if Player.x - Player.speed > 5: 
-            Player.x -= Player.speed
-        else:
-            Player.x = 5
-    if (pressed[pygame.K_RIGHT] or pressed[pygame.K_d]):
-        if Player.x + Player.speed < WIDTH - Player.length - 5: 
-            Player.x += Player.speed
-        else:
-            Player.x = WIDTH - Player.length - 5
+    Player.refresh()
 
     #draw
-    screen.fill(Colors.black)
-    pygame.draw.rect(screen, Colors.blue, pygame.Rect(Player.x, Player.y, Player.length, Player.length))
-    pygame.draw.rect(screen, Colors.red, pygame.Rect(Obstacles.x, Obstacles.y, Obstacles.length, Obstacles.length))
-    pygame.draw.rect(screen, Colors.black, pygame.Rect(0, HEIGHT, WIDTH, MENU))
-    pygame.draw.rect(screen, Colors.blue, pygame.Rect(0, HEIGHT, WIDTH, 5))
-    pygame.display.flip()
-    clock.tick(FPS)
+    refresh()
 
 pygame.quit()
