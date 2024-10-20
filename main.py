@@ -1,5 +1,5 @@
-import pygame
 from cryptography.fernet import Fernet
+import pygame
 import time
 import os
 import random as rand
@@ -138,7 +138,46 @@ def startgame():
 
 def player_score_menu():
     player_score_menu_open = True
+    color_back = Colors.blue
     clearall()
+    #some text
+    text = font_32.render("Your best scores", True, Colors.blue)
+    text_rect = text.get_rect(center = (WIDTH // 2, 40))
+    screen.blit(text, text_rect)
+
+    text = font_32.render("score", True, Colors.blue)
+    text_rect = text.get_rect(center = (WIDTH // 2 - 55, 80))
+    screen.blit(text, text_rect)
+
+    text = font_32.render("date", True, Colors.blue)
+    text_rect = text.get_rect(center = (WIDTH // 2 + 130, 80))
+    screen.blit(text, text_rect)
+
+    for i in range(0, 10):
+        if i == 0:
+            color_number = Colors.gold
+        elif i == 1:
+            color_number = Colors.silver
+        elif i == 2:
+            color_number = Colors.bronze
+        else:
+            color_number = Colors.blue
+
+        #number
+        text = font_32.render(str(i+1), True, color_number)
+        text_rect = text.get_rect(center = (WIDTH // 2 - 170, 80 + 40 * (i+1)))
+        screen.blit(text, text_rect)
+                            
+        #score
+        text = font_32.render(str(top_scores["high_scores"][i]["score"]), True, color_number)
+        text_rect = text.get_rect(center = (WIDTH // 2 - 55, 80 + 40 * (i+1)))
+        screen.blit(text, text_rect)
+
+        #date
+        text = font_32.render(str(top_scores["high_scores"][i]["date"]), True, color_number)
+        text_rect = text.get_rect(center = (WIDTH // 2 + 130, 80 + 40 * (i+1)))
+        screen.blit(text, text_rect)
+        
     while player_score_menu_open:
 
         for event in pygame.event.get():
@@ -148,48 +187,24 @@ def player_score_menu():
                 if event.key == pygame.K_ESCAPE:
                     clearall()
                     player_score_menu_open = False
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if mouse_x >= 333 and mouse_x <= 407 and mouse_y >= 510 and mouse_y <= 530:
+                    clearall()
+                    player_score_menu_open = False
         
         if player_score_menu_open:
-            #some text
-            text = font_32.render("Your best scores", True, Colors.blue)
-            text_rect = text.get_rect(center = (WIDTH // 2, 40))
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            if mouse_x >= 333 and mouse_x <= 407 and mouse_y >= 510 and mouse_y <= 530:
+                color_back = Colors.white
+            else:
+                color_back = Colors.blue
+
+            text = font_32.render("Back", True, color_back)
+            text_rect = text.get_rect(center = (WIDTH // 2 + 130, 520))
             screen.blit(text, text_rect)
 
-            text = font_32.render("score", True, Colors.blue)
-            text_rect = text.get_rect(center = (WIDTH // 2 - 55, 80))
-            screen.blit(text, text_rect)
-
-            text = font_32.render("date", True, Colors.blue)
-            text_rect = text.get_rect(center = (WIDTH // 2 + 130, 80))
-            screen.blit(text, text_rect)
-
-            for i in range(0, 10):
-                if i == 0:
-                    Color = Colors.gold
-                elif i == 1:
-                    Color = Colors.silver
-                elif i == 2:
-                    Color = Colors.bronze
-                else:
-                    Color = Colors.blue
-
-                #number
-                text = font_32.render(str(i+1), True, Color)
-                text_rect = text.get_rect(center = (WIDTH // 2 - 170, 80 + 40 * (i+1)))
-                screen.blit(text, text_rect)
-                
-                #score
-                text = font_32.render(str(top_scores["high_scores"][i]["score"]), True, Color)
-                text_rect = text.get_rect(center = (WIDTH // 2 - 55, 80 + 40 * (i+1)))
-                screen.blit(text, text_rect)
-
-                #date
-                text = font_32.render(str(top_scores["high_scores"][i]["date"]), True, Color)
-                text_rect = text.get_rect(center = (WIDTH // 2 + 130, 80 + 40 * (i+1)))
-                screen.blit(text, text_rect)
-
-
-            pygame.display.flip()
+        pygame.display.flip()
 
 def mouse_button():
     
@@ -369,7 +384,7 @@ while running:
                 player_crash_x, player_crash_y, player_crush_length = Player.x, Player.y, Player.length
                 obstacle_crush_x, obstacle_crush_y, obstacle_crush_length = obstacle.x, obstacle.y, obstacle.length
                 #cleaning screen
-                pygame.draw.rect(screen, Colors.black, pygame.Rect(0, 0, WIDTH, HEIGHT + MENU))
+                clearall()
                 pygame.mouse.set_visible(True)
                 save_score(score)
                 timer = time.time()
