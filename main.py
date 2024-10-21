@@ -37,7 +37,7 @@ font_nataliza = os.path.join(game_dir, 'nasaliza.ttf')
 font_32 = pygame.font.Font(font_nataliza, 32)
 font_64 = pygame.font.Font(font_nataliza, 64)
 key = b'es0XMVo30jLUso_mQU1PVmGh8RWnywv_arAPDENz9cU='
-#reading top score file
+#reading top score file. If for hiding code in VScode
 if True:
     file_name = f'{game_dir}\score.txt'
     if not os.path.exists(file_name):
@@ -94,8 +94,10 @@ def mouse_coordinates():
         Menu.color_settings_text = Colors.blue
 
     if mouse_x >= 210 and mouse_x <= 270 and mouse_y >= 510 and mouse_y <= 530:
+        pygame.draw.rect(screen, Colors.black, pygame.Rect(210, 510, 60, 20))
         Menu.color_exit_text = Colors.red
     else:
+        pygame.draw.rect(screen, Colors.black, pygame.Rect(210, 510, 60, 20))
         Menu.color_exit_text = Colors.blue
     
     if mouse_x >= 180 and mouse_x <= 300 and mouse_y >= 150 and mouse_y <= 290:
@@ -119,7 +121,6 @@ def refresh_play():
 def startgame():
     global playing, obstacles, score
     playing = True
-    pygame.mouse.set_visible(False)
     obstacles = []
     for i in range(num_enemy):
         obstacle = Obstacles()
@@ -134,7 +135,12 @@ def startgame():
         timer_rect_text = timer_text.get_rect(center = (WIDTH // 2, HEIGHT // 2 + 80))
         screen.blit(timer_text, timer_rect_text)
         pygame.display.flip()
-        pygame.time.wait(1000)
+        timer = time.time()
+        while time.time() - timer < 1:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:  
+                    os._exit()
+    pygame.mouse.set_visible(False)
 
 def player_score_menu():
     player_score_menu_open = True
@@ -258,7 +264,7 @@ class Player():
                 Player.x += Player.speed
             else:
                 Player.x = WIDTH - Player.length - 5
-
+        
 class Obstacles():
 
     def __init__(self):
@@ -388,10 +394,10 @@ while running:
                 pygame.mouse.set_visible(True)
                 save_score(score)
                 timer = time.time()
-        
+            
         if playing:
             #player moving
             Player.refresh()
-
+            
             #draw
             refresh_play()
